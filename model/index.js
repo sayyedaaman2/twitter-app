@@ -29,6 +29,9 @@ db.user.hasMany(db.following);
 db.user.hasMany(db.tweet);
 db.tweet.hasMany(db.like);
 db.tweet.hasMany(db.comment);
+//User.hasOne(models.Portfolio, { foreignKey: "userId" })
+db.tweet.hasOne(db.like, {foreignKey : "tweetId"})
+db.tweet.hasOne(db.comment, {foreignKey : "tweetId"})
 
 db.follower.belongsTo(db.user,{
     foreignKey : "userId"
