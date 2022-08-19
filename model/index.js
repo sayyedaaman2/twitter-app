@@ -36,6 +36,8 @@ db.follower.belongsTo(db.user,{
 db.following.belongsTo(db.user,{
     foreignKey : "userId"
 })
-
+db.tweet.belongsTo(db.user, {
+    foreignKey : "userId"
+})
 
 module.exports = db;

@@ -1,3 +1,4 @@
+
 module.exports = (sequelize , Sequelize) =>{
     const Tweet = sequelize.define('tweet', {
         id : {
@@ -10,9 +11,16 @@ module.exports = (sequelize , Sequelize) =>{
             allowNull : false
         },
         username : {
-            type : Sequelize.STRING
+            type : Sequelize.STRING,
+            allowNull : false
+        },
+        sentOn : {
+            type : Sequelize.DATE,
+            defaultValue : Sequelize.NOW
         }
-    },{
+    },
+    { timestamps: false },
+    {
         tableName : "tweet"
     });
     return Tweet;

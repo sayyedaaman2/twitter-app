@@ -54,7 +54,7 @@ db.sequelize.sync({force : true}).then(()=>{
     init();
 })
 require('./routes/auth.routes')(app);
-require('./routes/following.routes')(app);
+require('./routes/profile.routes')(app);
 app.listen(serverConfig.PORT(), ()=>{
     console.log(`Server is Running on ${serverConfig.PORT()}`);
 })

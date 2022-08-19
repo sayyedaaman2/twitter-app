@@ -45,7 +45,7 @@ exports.signIn = (req, res)=>{
         }
 
         var token = jwt.sign({ id : user.id }, authConfig.secret, {
-            expiresIn : 86400
+            expiresIn : 6400
         })
         var follower  
         var following

@@ -93,6 +93,36 @@ exports.unfollow = (req, res) =>{
 
 }
 
+exports.GetAllFollowings = async (req, res) =>{
+
+    let userId = req.userId;
+    await Following.findAll({
+        // attributes: ["userId"],
+        where : {followingId : userId},
+        include :[
+            {
+                model: User,
+                attributes: ["username", "email"]
+            }
+        ]
+    }).then(data=>{
+        let followers = [];
+        data.forEach(data =>{
+            followers.push(data.user);
+        })
+        // console.log(followers);
+        res.status(200).send({
+            followers : followers.length,
+            content : followers
+        });
+    }).catch(err=>{
+        console.log("Some Error while fetching all the followers", err.message);
+        res.status(500).send({
+            message : "Some interanal error"
+        })
+    })
+}
+
 exports.GetAllFollowers = async (req, res) =>{
 
     let userId = req.userId;
@@ -116,7 +146,7 @@ exports.GetAllFollowers = async (req, res) =>{
             content : followers
         });
     }).catch(err=>{
-        console.log("Some Error while fetching all the followers", err.message);
+        console.log("Some Error while fetching all the followwing", err.message);
         res.status(500).send({
             message : "Some interanal error"
         })
