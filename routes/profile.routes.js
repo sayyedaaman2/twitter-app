@@ -15,7 +15,10 @@ module.exports = (app)=>{
 
     app.post("/twitter/api/v1/tweet/post", [authJwt.verifyToken], tweetController.post);
 
+    app.post("/twitter/api/v1/tweet/like/:id", [authJwt.verifyToken], tweetController.like);
+
     app.get("/twitter/api/v1/tweets", [authJwt.verifyToken], tweetController.Tweets);
 
+    app.get("/twitter/api/v1/feed", [authJwt.verifyToken], tweetController.feed);
 
 }
