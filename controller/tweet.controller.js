@@ -1,7 +1,9 @@
+const { Op } = require('sequelize');
 const db = require('../model');
 const Tweet = db.tweet;
 const User = db.user;
 const Like = db.like;
+const Comment = db.comment;
 exports.post = async (req, res) =>{
     
     var username;
@@ -38,15 +40,9 @@ exports.post = async (req, res) =>{
 exports.Tweets = async (req, res) =>{
     
     Tweet.findAll({
-        where : {userId : req.userId}
-        // include : [{
-        //     model : User,
-        //     where : {
-        //         id : req.userId
-        //     }
-        // }]
+        where : {userId : req.userId},
     }).then(data=>{
-        console.log(data);
+        // console.log(data);
         console.log('Successfully  Fetch all tweets');
         res.status(201).send(data)
     }).catch(err=>{
@@ -78,14 +74,32 @@ exports.like = async (req, res) =>{
     })
     LikeObj = {
         username : username,
-        tweetId : req.params.id
+        tweetId : req.params.id,
+        userId : req.userId
     }
-    console.log(LikeObj);
-    Like.create(LikeObj).then(data=>{
+    // console.log(LikeObj);
+    Like.findOne({
+        where : {
+            [Op.and] : [
+                { tweetId : req.params.id },
+                {userId : req.userId }
+            ]
+        }
+    }).then(async data=>{
         console.log(data);
-        res.status(201).send({
-            message : `${username} liked tweet No ${req.params.id}`
-        })
+        if(data != null){
+            res.status(400).send({
+                message : "You are already Liked"
+            });
+            return;
+        }else{
+            await Like.create(LikeObj).then(data=>{
+                console.log(data);
+                res.status(201).send({
+                    message : `${username} liked tweet No ${req.params.id}`
+                })
+            })
+        }
     }).catch(err=>{
         console.log('Some error while like the tweet',err.message);
         res.status(500).send({

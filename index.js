@@ -51,7 +51,7 @@ function init(){
 
 db.sequelize.sync({force : true}).then(()=>{
     console.log('Table dropped and recreted');
-    init();
+    //init();
 })
 require('./routes/auth.routes')(app);
 require('./routes/profile.routes')(app);
