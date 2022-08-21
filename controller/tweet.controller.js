@@ -1,4 +1,5 @@
 const { Op } = require('sequelize');
+const { sequelize } = require('../model');
 const db = require('../model');
 const Tweet = db.tweet;
 const User = db.user;
@@ -55,15 +56,32 @@ exports.Tweets = async (req, res) =>{
 
 exports.feed = (req, res) =>{
     //Users.findAll({ order: [['updatedAt', 'DESC']]}); // or ASC
-    Tweet.findAll({  order : [['SentOn', 'ASC']]}).then(data=>{
-        console.log(data);
-        res.status(200).send(data);
+    const Feed = sequelize.query(`SELECT distinct tweets.id , tweets.content, tweets.username , tweets.sentOn ,
+    (select count(id) from twitterapp.like where twitterapp.tweets.id=twitterapp.like.tweetId ) as "like"
+     FROM twitterapp.tweets right join twitterapp.like on twitterapp.tweets.id=twitterapp.like.tweetId;`)
+
+    Feed.then(data=>{
+        console.log(data[0]);
+        res.status(200).send(data[0])
     }).catch(err=>{
         console.log("Some Error while fetching the Feed", err.message);
         res.status(500).send({
             message : "Some internal Error"
         })
     })
+
+
+
+
+    // Tweet.findAll({  order : [['SentOn', 'ASC']]}).then(data=>{
+    //     console.log(data);
+    //     res.status(200).send(data);
+    // }).catch(err=>{
+    //     console.log("Some Error while fetching the Feed", err.message);
+    //     res.status(500).send({
+    //         message : "Some internal Error"
+    //     })
+    // })
 }
 
 exports.like = async (req, res) =>{
@@ -78,28 +96,43 @@ exports.like = async (req, res) =>{
         userId : req.userId
     }
     // console.log(LikeObj);
-    Like.findOne({
+    Tweet.findOne({
         where : {
-            [Op.and] : [
-                { tweetId : req.params.id },
-                {userId : req.userId }
-            ]
+            id : req.params.id
         }
-    }).then(async data=>{
-        console.log(data);
-        if(data != null){
+    }).then((tweet)=>{
+        console.log(tweet);
+        if(tweet == null){
             res.status(400).send({
-                message : "You are already Liked"
+                message : "Tweet is not present"
             });
             return;
         }else{
-            await Like.create(LikeObj).then(data=>{
+            Like.findOne({
+                where : {
+                    [Op.and] : [
+                        { tweetId : req.params.id },
+                        {userId : req.userId }
+                    ]
+                }
+            }).then(async data=>{
                 console.log(data);
-                res.status(201).send({
-                    message : `${username} liked tweet No ${req.params.id}`
-                })
+                if(data != null){
+                    res.status(400).send({
+                        message : "You are already Liked"
+                    });
+                    return;
+                }else{
+                    await Like.create(LikeObj).then(data=>{
+                        console.log(data);
+                        res.status(201).send({
+                            message : `${username} liked tweet No ${req.params.id}`
+                        })
+                    })
+                }
             })
         }
+        
     }).catch(err=>{
         console.log('Some error while like the tweet',err.message);
         res.status(500).send({
