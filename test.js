@@ -14,36 +14,21 @@ const Like = model.like;
 // on 
 // twitterapp.tweets.id=twitterapp.like.tweetId
 // where (twitterapp.tweets.id=2);
-
+let userId = 1;
+let sql = `SELECT twitterapp.user.username, twitterapp.tweets.id as "TweetNo", twitterapp.tweets.content ,  twitterapp.like.tweetId from 
+twitterapp.user inner join twitterapp.tweets on twitterapp.user.id = twitterapp.tweets.userId
+inner join twitterapp.like on twitterapp.like.tweetId=twitterapp.tweets.id`;
 const data = ()=>{
-    return sequelize.query(`SELECT distinct tweets.id , tweets.content, tweets.username , tweets.sentOn ,
-    (select count(id) from twitterapp.like where twitterapp.tweets.id=twitterapp.like.tweetId ) as "like"
-     FROM twitterapp.tweets inner join twitterapp.like on twitterapp.tweets.id=twitterapp.like.tweetId;`)
-
+    return sequelize.query(sql)
 }
 data().then(data=>{
-    console.log('output',data[0]);
+    console.log(data);
+    // console.log('output',data[0]);
+}).catch(err=>{
+    console.log("error",err);
 })
-// {include : [
-//     {
-//         model : Like,
-//         where : {
-//             tweetId : 1
-//         }
-//     }
-// ]}
 
 
- // const posts = await Posts.findAll({
- //     include: [{
- //         model: Answers,
- //         include: [{
- //           attributes: { 
- //               include: [
- //   [Sequelize.literal("(SELECT COUNT(*) FROM Votes WHERE answerId=answer.id AND Votes.voteType=true)"), "upVote"],
-// [Sequelize.literal("(SELECT COUNT(*) FROM Votes WHERE answerId=answer.id AND Votes.voteType=false)"), "downVote"]
-//           ] 
-//           }
- //         }]
-//     }]
-// });
+// `SELECT distinct tweets.id , tweets.content, tweets.username , tweets.sentOn ,
+//     (select count(id) from twitterapp.like where twitterapp.tweets.id=twitterapp.like.tweetId ) as "like"
+//      FROM twitterapp.tweets inner join twitterapp.like on twitterapp.tweets.id=twitterapp.like.tweetId;`)
