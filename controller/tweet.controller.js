@@ -40,25 +40,40 @@ exports.post = async (req, res) =>{
 }
 exports.Tweets = async (req, res) =>{
     
-    Tweet.findAll({
-        where : {userId : req.userId},
-    }).then(data=>{
-        // console.log(data);
-        console.log('Successfully  Fetch all tweets');
-        res.status(201).send(data)
+    const Tweets = sequelize.query(`SELECT twitterapp.tweets.id, twitterapp.tweets.username, twitterapp.tweets.content,
+    (select count(*) from twitterapp.like where twitterapp.like.tweetId=twitterapp.tweets.id) as "like"
+    from twitterapp.tweets
+    where twitterapp.tweets.userId=${req.userId}`)
+
+    Tweets.then(data=>{
+        console.log(data[0]);
+        res.status(200).send(data[0])
     }).catch(err=>{
-        console.log('Some error while posting tweet',err.message);
+        console.log("Some Error while fetching the Tweets", err.message);
         res.status(500).send({
-            message : "Some Internal Error"
+            message : "Some internal Error"
         })
     })
+
+    // Tweet.findAll({
+    //     where : {userId : req.userId},
+    // }).then(data=>{
+    //     // console.log(data);
+    //     console.log('Successfully  Fetch all tweets');
+    //     res.status(201).send(data)
+    // }).catch(err=>{
+    //     console.log('Some error while posting tweet',err.message);
+    //     res.status(500).send({
+    //         message : "Some Internal Error"
+    //     })
+    // })
 }
 
 exports.feed = (req, res) =>{
     //Users.findAll({ order: [['updatedAt', 'DESC']]}); // or ASC
-    const Feed = sequelize.query(`SELECT distinct tweets.id , tweets.content, tweets.username , tweets.sentOn ,
-    (select count(id) from twitterapp.like where twitterapp.tweets.id=twitterapp.like.tweetId ) as "like"
-     FROM twitterapp.tweets right join twitterapp.like on twitterapp.tweets.id=twitterapp.like.tweetId;`)
+    const Feed = sequelize.query(`SELECT twitterapp.tweets.id, twitterapp.tweets.username, twitterapp.tweets.content,
+    (select count(*) from twitterapp.like where twitterapp.like.tweetId=twitterapp.tweets.id) as "like"
+    from twitterapp.tweets;`)
 
     Feed.then(data=>{
         console.log(data[0]);
